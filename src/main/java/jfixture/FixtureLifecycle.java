@@ -9,9 +9,9 @@ public class FixtureLifecycle {
         this.definition = definition;
     }
 
-    public Object setUp() {
+    public Object setUp(FixtureResolver resolver) {
         if (!isSetUp) {
-            object = definition.setUp();
+            object = definition.setUp(resolver);
             isSetUp = true;
         }
         return object;

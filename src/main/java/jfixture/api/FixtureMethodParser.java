@@ -1,6 +1,7 @@
 package jfixture.api;
 
 import jfixture.FixtureDefinition;
+import jfixture.FixtureResolver;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,12 +29,15 @@ public class FixtureMethodParser {
             private FixtureContext context;
 
             @Override
-            public Object setUp() {
+            public Object setUp(FixtureResolver resolver) {
                 context = new FixtureContext();
                 try {
                     var args = Arrays.stream(method.getParameterTypes())
-                            .map(t -> {
-                                return context;
+                            .map(type -> {
+                                if (type == FixtureContext.class) {
+                                    return context;
+                                }
+                                return resolver.resolve(type);
                             }).toArray();
 
                     return method.invoke(testInstance, args);

@@ -9,6 +9,7 @@ public class FixtureManager {
 
     private final List<FixtureDefinition> definitions;
     private final Map<Class<?>, FixtureLifecycle> typeLifecycleMap = new LinkedHashMap<>();
+    private final FixtureResolver resolver = new FixtureResolver(this);
 
     public FixtureManager(List<FixtureDefinition> definitions) {
         this.definitions = definitions;
@@ -16,7 +17,7 @@ public class FixtureManager {
 
     public Object setUp(Class<?> type) {
         var lifecycle = getFixtureLifecycle(type);
-        return lifecycle.setUp();
+        return lifecycle.setUp(resolver);
     }
 
     public void tearDown() {

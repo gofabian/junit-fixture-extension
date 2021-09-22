@@ -17,7 +17,7 @@ public class FixtureManagerTest {
         }
 
         @Override
-        public Object setUp() {
+        public Object setUp(FixtureResolver resolver) {
             return null;
         }
 

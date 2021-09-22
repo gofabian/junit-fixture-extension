@@ -51,7 +51,7 @@ public class FixtureMethodParserTest {
         var method = MyTest.class.getMethod("integer");
         var definition = new FixtureMethodParser().createFixtureDefinition(new MyTest(), method);
 
-        var object = definition.setUp();
+        var object = definition.setUp(null);
         assertEquals(42, object);
     }
 
@@ -60,7 +60,7 @@ public class FixtureMethodParserTest {
         var method = CannotInvokeTest.class.getDeclaredMethod("integer");
         var definition = new FixtureMethodParser().createFixtureDefinition(new CannotInvokeTest(), method);
 
-        assertThrows(RuntimeException.class, definition::setUp);
+        assertThrows(RuntimeException.class, () -> definition.setUp(null));
     }
 
 }

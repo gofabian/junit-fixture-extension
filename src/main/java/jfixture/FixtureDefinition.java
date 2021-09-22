@@ -8,7 +8,7 @@ public abstract class FixtureDefinition {
         this.type = type;
     }
 
-    public abstract Object setUp();
+    public abstract Object setUp(FixtureResolver resolver);
 
     public abstract void tearDown(Object object);
 

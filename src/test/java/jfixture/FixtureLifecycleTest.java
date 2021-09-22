@@ -17,7 +17,7 @@ public class FixtureLifecycleTest {
         }
 
         @Override
-        public Object setUp() {
+        public Object setUp(FixtureResolver resolver) {
             i++;
             return "object" + i;
         }
@@ -38,15 +38,15 @@ public class FixtureLifecycleTest {
     @Test
     public void when_set_up_then_definition_will_set_up() {
         var lifecycle = new FixtureLifecycle(definition);
-        var object = lifecycle.setUp();
+        var object = lifecycle.setUp(null);
         assertEquals("object1", object);
     }
 
     @Test
     public void when_lifecycle_sets_up_again_then_definition_will_not_be_set_up_again() {
         var lifecycle = new FixtureLifecycle(definition);
-        lifecycle.setUp();
-        var object = lifecycle.setUp();
+        lifecycle.setUp(null);
+        var object = lifecycle.setUp(null);
         assertEquals("object1", object);
     }
 
@@ -59,7 +59,7 @@ public class FixtureLifecycleTest {
     @Test
     public void when_tear_down_after_set_up_then_definition_will_be_teared_down() {
         var lifecycle = new FixtureLifecycle(definition);
-        lifecycle.setUp();
+        lifecycle.setUp(null);
         lifecycle.tearDown();
         assertEquals("object1", definition.objectTearedDown);
     }
@@ -67,9 +67,9 @@ public class FixtureLifecycleTest {
     @Test
     public void when_set_up_after_tear_down_then_definition_will_set_up_again() {
         var lifecycle = new FixtureLifecycle(definition);
-        lifecycle.setUp();
+        lifecycle.setUp(null);
         lifecycle.tearDown();
-        var object = lifecycle.setUp();
+        var object = lifecycle.setUp(null);
         assertEquals("object2", object);
     }
 
