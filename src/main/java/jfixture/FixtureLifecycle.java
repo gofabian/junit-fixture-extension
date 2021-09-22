@@ -17,6 +17,10 @@ public class FixtureLifecycle {
         return object;
     }
 
+    public boolean isSetUp() {
+        return isSetUp;
+    }
+
     public void tearDown() {
         if (!isSetUp) {
             throw new IllegalStateException("not set up");

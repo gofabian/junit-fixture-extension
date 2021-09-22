@@ -7,8 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FixtureManagerTest {
 
@@ -74,6 +73,27 @@ public class FixtureManagerTest {
         var lifecycle1 = manager.getFixtureLifecycle(ArrayList.class);
         var lifecycle2 = manager.getFixtureLifecycle(List.class);
         assertSame(lifecycle1, lifecycle2);
+    }
+
+    @Test
+    public void set_up_type() {
+        var stringDefinition = new MyFixtureDefinition(String.class);
+        var manager = new FixtureManager(Collections.singletonList(stringDefinition));
+
+        assertFalse(manager.getFixtureLifecycle(String.class).isSetUp());
+        manager.setUp(String.class);
+        assertTrue(manager.getFixtureLifecycle(String.class).isSetUp());
+    }
+
+    @Test
+    public void tear_down_all() {
+        var stringDefinition = new MyFixtureDefinition(String.class);
+        var manager = new FixtureManager(Collections.singletonList(stringDefinition));
+
+        manager.setUp(String.class);
+        assertTrue(manager.getFixtureLifecycle(String.class).isSetUp());
+        manager.tearDown();
+        assertFalse(manager.getFixtureLifecycle(String.class).isSetUp());
     }
 
 }

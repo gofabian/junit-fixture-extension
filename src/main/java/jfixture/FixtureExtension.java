@@ -25,18 +25,13 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         var manager = getManager(extensionContext);
         var type = parameterContext.getParameter().getType();
-        var lifecycle = manager.getFixtureLifecycle(type);
-        return lifecycle.setUp();
+        return manager.setUp(type);
     }
 
     @Override
     public void afterTestExecution(ExtensionContext extensionContext) throws Exception {
         var manager = getManager(extensionContext);
-        var lifecycles = manager.getFixtureLifecycles();
-        var it = lifecycles.listIterator(lifecycles.size());
-        while (it.hasPrevious()) {
-            it.previous().tearDown();
-        }
+        manager.tearDown();
     }
 
     private FixtureManager getManager(ExtensionContext extensionContext) {

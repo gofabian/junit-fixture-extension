@@ -8,10 +8,23 @@ import java.util.Map;
 public class FixtureManager {
 
     private final List<FixtureDefinition> definitions;
-    private final Map<Class<?>, FixtureLifecycle> lifecycles = new LinkedHashMap<>();
+    private final Map<Class<?>, FixtureLifecycle> typeLifecycleMap = new LinkedHashMap<>();
 
     public FixtureManager(List<FixtureDefinition> definitions) {
         this.definitions = definitions;
+    }
+
+    public Object setUp(Class<?> type) {
+        var lifecycle = getFixtureLifecycle(type);
+        return lifecycle.setUp();
+    }
+
+    public void tearDown() {
+        var lifecycles = new ArrayList<>(typeLifecycleMap.values());
+        var it = lifecycles.listIterator(lifecycles.size());
+        while (it.hasPrevious()) {
+            it.previous().tearDown();
+        }
     }
 
     public FixtureLifecycle getFixtureLifecycle(Class<?> type) {
@@ -19,11 +32,7 @@ public class FixtureManager {
         if (definition == null) {
             throw new IllegalArgumentException("no fixture found for type " + type);
         }
-        return lifecycles.computeIfAbsent(definition.getType(), k -> new FixtureLifecycle(definition));
-    }
-
-    public List<FixtureLifecycle> getFixtureLifecycles() {
-        return new ArrayList<>(lifecycles.values());
+        return typeLifecycleMap.computeIfAbsent(definition.getType(), k -> new FixtureLifecycle(definition));
     }
 
     public FixtureDefinition findFixtureDefinition(Class<?> type) {
