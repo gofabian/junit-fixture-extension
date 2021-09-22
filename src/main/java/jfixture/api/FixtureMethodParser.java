@@ -13,6 +13,27 @@ public class FixtureMethodParser {
 
     public List<FixtureDefinition> parseFixtureDefinitions(Object testInstance) {
         var definitions = new ArrayList<FixtureDefinition>();
+
+        parseContainerInstance(testInstance, definitions);
+
+        var annotations = testInstance.getClass().getAnnotationsByType(UseFixtureContainer.class);
+        for (var annotation : annotations) {
+            parseContainerClass(annotation.value(), definitions);
+        }
+
+        return definitions;
+    }
+
+    private void parseContainerClass(Class<?> containerClass, List<FixtureDefinition> definitions) {
+        try {
+            var containerInstance = containerClass.getDeclaredConstructor().newInstance();
+            parseContainerInstance(containerInstance, definitions);
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException("cannot create instance of fixture container", e);
+        }
+    }
+
+    private void parseContainerInstance(Object testInstance, List<FixtureDefinition> definitions) {
         for (var method : testInstance.getClass().getMethods()) {
             var annotation = method.getAnnotation(Fixture.class);
             if (annotation != null) {
@@ -20,7 +41,6 @@ public class FixtureMethodParser {
                 definitions.add(definition);
             }
         }
-        return definitions;
     }
 
     public FixtureDefinition createFixtureDefinition(Object testInstance, Method method) {

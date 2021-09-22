@@ -5,7 +5,7 @@ Idea from: https://docs.pytest.org/en/6.2.x/fixture.html
 ## todo
 
 - [ ] readme
-- [ ] external fixture definition
+- [x] external fixture definition
 - [ ] Programmatic FixtureDefinition
 - [x] fixture dependencies
 - [ ] scope
