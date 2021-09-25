@@ -18,7 +18,7 @@ public class FixtureManagerTest {
 
         @Override
         public Object setUp(FixtureResolver resolver) {
-            return null;
+            return Math.random();
         }
 
         @Override
@@ -52,7 +52,7 @@ public class FixtureManagerTest {
     @Test
     public void when_no_definition_chosen_then_exception_will_be_thrown() {
         var manager = new FixtureManager(Collections.emptyList());
-        assertThrows(IllegalArgumentException.class, () -> manager.getFixtureLifecycle(String.class));
+        assertThrows(IllegalArgumentException.class, () -> manager.setUp(String.class));
     }
 
     @Test
@@ -60,9 +60,9 @@ public class FixtureManagerTest {
         var listDefinition = new MyFixtureDefinition(List.class);
         var manager = new FixtureManager(Collections.singletonList(listDefinition));
 
-        var lifecycle1 = manager.getFixtureLifecycle(List.class);
-        var lifecycle2 = manager.getFixtureLifecycle(List.class);
-        assertSame(lifecycle1, lifecycle2);
+        var object1 = manager.setUp(List.class);
+        var object2 = manager.setUp(List.class);
+        assertSame(object1, object2);
     }
 
     @Test
@@ -70,9 +70,9 @@ public class FixtureManagerTest {
         var arrayListDefinition = new MyFixtureDefinition(ArrayList.class);
         var manager = new FixtureManager(Collections.singletonList(arrayListDefinition));
 
-        var lifecycle1 = manager.getFixtureLifecycle(ArrayList.class);
-        var lifecycle2 = manager.getFixtureLifecycle(List.class);
-        assertSame(lifecycle1, lifecycle2);
+        var object1 = manager.setUp(ArrayList.class);
+        var object2 = manager.setUp(List.class);
+        assertSame(object1, object2);
     }
 
     @Test

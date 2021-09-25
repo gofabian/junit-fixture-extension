@@ -17,7 +17,9 @@ public class FixtureManager {
 
     public Object setUp(Class<?> type) {
         var lifecycle = getFixtureLifecycle(type);
-        return lifecycle.setUp(resolver);
+        var object = lifecycle.setUp(resolver);
+        typeLifecycleMap.put(lifecycle.getDefinition().getType(), lifecycle);
+        return object;
     }
 
     public void tearDown() {
@@ -28,12 +30,16 @@ public class FixtureManager {
         }
     }
 
-    public FixtureLifecycle getFixtureLifecycle(Class<?> type) {
+    FixtureLifecycle getFixtureLifecycle(Class<?> type) {
         var definition = findFixtureDefinition(type);
         if (definition == null) {
             throw new IllegalArgumentException("no fixture found for type " + type);
         }
-        return typeLifecycleMap.computeIfAbsent(definition.getType(), k -> new FixtureLifecycle(definition));
+        var lifecycle = typeLifecycleMap.get(definition.getType());
+        if (lifecycle != null) {
+            return lifecycle;
+        }
+        return new FixtureLifecycle(definition);
     }
 
     public FixtureDefinition findFixtureDefinition(Class<?> type) {

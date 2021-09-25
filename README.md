@@ -4,7 +4,7 @@ Idea from: https://docs.pytest.org/en/6.2.x/fixture.html
 
 ## todo
 
-- [ ] order of tear downs is wrong? (FixtureManager)
+- [x] order of tear downs is wrong? (FixtureManager)
 - [ ] hierarchies
     - [ ] fixtures in outer and inner test classes
     - [ ] order of find fixture by type? should be "last" first?

@@ -32,6 +32,18 @@ public class TearDownOrderTest {
         return "string";
     }
 
+    @Fixture
+    public boolean database(FixtureContext context) {
+        context.addTearDown(() -> tearDowns.add("database"));
+        return true;
+    }
+
+    @Fixture
+    public long table(FixtureContext context, boolean database) {
+        context.addTearDown(() -> tearDowns.add("table"));
+        return 2L;
+    }
+
     @Test
     @Tag("reverse_order_1")
     public void tear_downs_happen_in_reverse_order_1(int integer, String string) {
@@ -42,6 +54,11 @@ public class TearDownOrderTest {
     public void tear_downs_happen_in_reverse_order_2(String string, int integer) {
     }
 
+    @Test
+    @Tag("fixture_dependency")
+    public void dependency_is_teared_down_last(long table) {
+    }
+
     @AfterEach
     public void check_tear_down_order(TestInfo testInfo) {
         if (testInfo.getTags().contains("reverse_order_1")) {
@@ -50,6 +67,9 @@ public class TearDownOrderTest {
         } else if (testInfo.getTags().contains("reverse_order_2")) {
             assertEquals("integer", tearDowns.get(0));
             assertEquals("string", tearDowns.get(1));
+        } else if (testInfo.getTags().contains("fixture_dependency")) {
+            assertEquals("table", tearDowns.get(0));
+            assertEquals("database", tearDowns.get(1));
         } else {
             fail();
         }
