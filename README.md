@@ -5,6 +5,7 @@ Idea from: https://docs.pytest.org/en/6.2.x/fixture.html
 ## todo
 
 - [x] order of tear downs is wrong? (FixtureManager)
+- [ ] check dependencies in parser? fail fast
 - [ ] reference fixture by name (not only by type)
 - [ ] hierarchies
     - [ ] fixtures in outer and inner test classes

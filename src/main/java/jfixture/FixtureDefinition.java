@@ -22,4 +22,11 @@ public abstract class FixtureDefinition {
 
     public abstract void tearDown(Object object);
 
+    @Override
+    public String toString() {
+        return "FixtureDefinition{" +
+                "type=" + type +
+                ", autoUse=" + autoUse +
+                '}';
+    }
 }
