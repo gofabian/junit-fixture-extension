@@ -15,34 +15,30 @@ public class FixtureManager {
         this.definitions = definitions;
     }
 
-    public Object setUp(Class<?> type) {
-        var lifecycle = getFixtureLifecycle(type);
-        var object = lifecycle.setUp(resolver);
-        typeLifecycleMap.put(lifecycle.getDefinition().getType(), lifecycle);
-        return object;
-    }
-
-    public void tearDown() {
-        var lifecycles = new ArrayList<>(typeLifecycleMap.values());
-        var it = lifecycles.listIterator(lifecycles.size());
-        while (it.hasPrevious()) {
-            it.previous().tearDown();
+    public void setUp() {
+        for (var definition : definitions) {
+            if (definition.isAutoUse()) {
+                setUpDefinition(definition);
+            }
         }
     }
 
-    FixtureLifecycle getFixtureLifecycle(Class<?> type) {
-        var definition = findFixtureDefinition(type);
+    public Object setUp(Class<?> type) {
+        var definition = getFixtureDefinition(type);
         if (definition == null) {
             throw new IllegalArgumentException("no fixture found for type " + type);
         }
-        var lifecycle = typeLifecycleMap.get(definition.getType());
-        if (lifecycle != null) {
-            return lifecycle;
-        }
-        return new FixtureLifecycle(definition);
+        return setUpDefinition(definition);
     }
 
-    public FixtureDefinition findFixtureDefinition(Class<?> type) {
+    private Object setUpDefinition(FixtureDefinition definition) {
+        var lifecycle = getFixtureLifecycle(definition);
+        var object = lifecycle.setUp(resolver);
+        typeLifecycleMap.put(definition.getType(), lifecycle);
+        return object;
+    }
+
+    public FixtureDefinition getFixtureDefinition(Class<?> type) {
         var it = definitions.listIterator(definitions.size());
         while (it.hasPrevious()) {
             var definition = it.previous();
@@ -51,6 +47,30 @@ public class FixtureManager {
             }
         }
         return null;
+    }
+
+    FixtureLifecycle getFixtureLifecycle(Class<?> type) {
+        var definition = getFixtureDefinition(type);
+        if (definition == null) {
+            throw new IllegalArgumentException("no fixture found for type " + type);
+        }
+        return getFixtureLifecycle(definition);
+    }
+
+    private FixtureLifecycle getFixtureLifecycle(FixtureDefinition definition) {
+        var lifecycle = typeLifecycleMap.get(definition.getType());
+        if (lifecycle != null) {
+            return lifecycle;
+        }
+        return new FixtureLifecycle(definition);
+    }
+
+    public void tearDown() {
+        var lifecycles = new ArrayList<>(typeLifecycleMap.values());
+        var it = lifecycles.listIterator(lifecycles.size());
+        while (it.hasPrevious()) {
+            it.previous().tearDown();
+        }
     }
 
 }

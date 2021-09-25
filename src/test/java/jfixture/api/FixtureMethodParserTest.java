@@ -41,7 +41,7 @@ public class FixtureMethodParserTest {
     @Test
     public void create_fixture_from_method() throws NoSuchMethodException {
         var method = MyTest.class.getMethod("integer");
-        var definition = new FixtureMethodParser().createFixtureDefinition(new MyTest(), method);
+        var definition = new FixtureMethodParser().createFixtureDefinition(new MyTest(), method, false);
 
         assertEquals(int.class, definition.getType());
     }
@@ -49,7 +49,7 @@ public class FixtureMethodParserTest {
     @Test
     public void set_up_by_calling_fixture_method() throws NoSuchMethodException {
         var method = MyTest.class.getMethod("integer");
-        var definition = new FixtureMethodParser().createFixtureDefinition(new MyTest(), method);
+        var definition = new FixtureMethodParser().createFixtureDefinition(new MyTest(), method, false);
 
         var object = definition.setUp(null);
         assertEquals(42, object);
@@ -58,7 +58,8 @@ public class FixtureMethodParserTest {
     @Test
     public void when_fixture_method_cannot_be_invoked_then_throw_exception() throws NoSuchMethodException {
         var method = CannotInvokeTest.class.getDeclaredMethod("integer");
-        var definition = new FixtureMethodParser().createFixtureDefinition(new CannotInvokeTest(), method);
+        var definition = new FixtureMethodParser()
+                .createFixtureDefinition(new CannotInvokeTest(), method, false);
 
         assertThrows(RuntimeException.class, () -> definition.setUp(null));
     }

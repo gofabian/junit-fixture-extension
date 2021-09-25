@@ -37,15 +37,15 @@ public class FixtureMethodParser {
         for (var method : testInstance.getClass().getMethods()) {
             var annotation = method.getAnnotation(Fixture.class);
             if (annotation != null) {
-                var definition = createFixtureDefinition(testInstance, method);
+                var definition = createFixtureDefinition(testInstance, method, annotation.autoUse());
                 definitions.add(definition);
             }
         }
     }
 
-    public FixtureDefinition createFixtureDefinition(Object testInstance, Method method) {
+    public FixtureDefinition createFixtureDefinition(Object testInstance, Method method, boolean autoUse) {
         // todo: validate method
-        return new FixtureDefinition(method.getReturnType()) {
+        return new FixtureDefinition(method.getReturnType(), autoUse) {
             private FixtureContext context;
 
             @Override

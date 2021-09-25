@@ -3,7 +3,8 @@ package jfixture;
 import jfixture.api.FixtureMethodParser;
 import org.junit.jupiter.api.extension.*;
 
-public class FixtureExtension implements TestInstancePostProcessor, ParameterResolver, AfterTestExecutionCallback {
+public class FixtureExtension implements TestInstancePostProcessor, ParameterResolver, BeforeTestExecutionCallback,
+        AfterTestExecutionCallback {
 
     private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(FixtureExtension.class);
 
@@ -15,10 +16,16 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     }
 
     @Override
+    public void beforeTestExecution(ExtensionContext context) throws Exception {
+        var manager = getManager(context);
+        manager.setUp();
+    }
+
+    @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         var manager = getManager(extensionContext);
         var type = parameterContext.getParameter().getType();
-        return manager.findFixtureDefinition(type) != null;
+        return manager.getFixtureDefinition(type) != null;
     }
 
     @Override

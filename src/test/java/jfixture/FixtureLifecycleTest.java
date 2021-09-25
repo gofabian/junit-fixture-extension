@@ -13,7 +13,7 @@ public class FixtureLifecycleTest {
         Object objectTearedDown;
 
         private MyFixtureDefinition() {
-            super(Object.class);
+            super(Object.class, false);
         }
 
         @Override

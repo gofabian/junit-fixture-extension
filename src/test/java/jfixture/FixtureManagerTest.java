@@ -13,7 +13,7 @@ public class FixtureManagerTest {
 
     private static class MyFixtureDefinition extends FixtureDefinition {
         public MyFixtureDefinition(Class<?> type) {
-            super(type);
+            super(type, false);
         }
 
         @Override
@@ -32,10 +32,10 @@ public class FixtureManagerTest {
         var listDefinition = new MyFixtureDefinition(List.class);
         var manager = new FixtureManager(Arrays.asList(stringDefinition, listDefinition));
 
-        var definition = manager.findFixtureDefinition(String.class);
+        var definition = manager.getFixtureDefinition(String.class);
         assertSame(stringDefinition, definition);
 
-        definition = manager.findFixtureDefinition(List.class);
+        definition = manager.getFixtureDefinition(List.class);
         assertSame(listDefinition, definition);
     }
 
@@ -45,7 +45,7 @@ public class FixtureManagerTest {
         var arrayListDefinition = new MyFixtureDefinition(ArrayList.class);
         var manager = new FixtureManager(Arrays.asList(listDefinition, arrayListDefinition));
 
-        var definition = manager.findFixtureDefinition(List.class);
+        var definition = manager.getFixtureDefinition(List.class);
         assertSame(arrayListDefinition, definition);
     }
 
@@ -77,12 +77,12 @@ public class FixtureManagerTest {
 
     @Test
     public void set_up_type() {
-        var stringDefinition = new MyFixtureDefinition(String.class);
-        var manager = new FixtureManager(Collections.singletonList(stringDefinition));
+        var intDefinition = new MyFixtureDefinition(int.class);
+        var manager = new FixtureManager(Collections.singletonList(intDefinition));
 
-        assertFalse(manager.getFixtureLifecycle(String.class).isSetUp());
-        manager.setUp(String.class);
-        assertTrue(manager.getFixtureLifecycle(String.class).isSetUp());
+        assertFalse(manager.getFixtureLifecycle(int.class).isSetUp());
+        manager.setUp(int.class);
+        assertTrue(manager.getFixtureLifecycle(int.class).isSetUp());
     }
 
     @Test
