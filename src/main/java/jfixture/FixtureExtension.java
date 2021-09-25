@@ -1,6 +1,6 @@
 package jfixture;
 
-import jfixture.api.FixtureMethodParser;
+import jfixture.parse.FixtureMethodParser;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
@@ -12,35 +12,43 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext extensionContext) {
         var definitions = new FixtureMethodParser().parseFixtureDefinitions(testInstance);
-        var bucket = new FixtureDefinitionBucket(definitions);
-        setToStore(bucket, extensionContext);
-        setToStore(new FixtureManager(bucket), extensionContext);
+
+        setToStore(new FixtureDefinitionQueries(definitions), extensionContext);
+        setToStore(new FixtureSession(), extensionContext);
     }
 
     @Override
     public void beforeTestExecution(ExtensionContext context) {
-        var manager = getFromStore(FixtureManager.class, context);
-        manager.setUp();
+        var queries = getFromStore(FixtureDefinitionQueries.class, context);
+        var session = getFromStore(FixtureSession.class, context);
+
+        for (var definition : queries.filterBy(FixtureDefinition::isAutoUse)) {
+            session.setUp(definition);
+        }
     }
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        var bucket = getFromStore(FixtureDefinitionBucket.class, extensionContext);
+        var queries = getFromStore(FixtureDefinitionQueries.class, extensionContext);
+
         var type = parameterContext.getParameter().getType();
-        return bucket.findByType(type) != null;
+        return queries.findByType(type) != null;
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        var manager = getFromStore(FixtureManager.class, extensionContext);
+        var queries = getFromStore(FixtureDefinitionQueries.class, extensionContext);
+        var session = getFromStore(FixtureSession.class, extensionContext);
+
         var type = parameterContext.getParameter().getType();
-        return manager.setUp(type);
+        var definition = queries.findByType(type);
+        return session.setUp(definition);
     }
 
     @Override
     public void afterTestExecution(ExtensionContext extensionContext) {
-        var manager = getFromStore(FixtureManager.class, extensionContext);
-        manager.tearDown();
+        var session = getFromStore(FixtureSession.class, extensionContext);
+        session.tearDown();
     }
 
     private <T> T getFromStore(Class<T> type, ExtensionContext extensionContext) {

@@ -1,5 +1,7 @@
 package jfixture;
 
+import java.util.List;
+
 public class FixtureLifecycle {
     private final FixtureDefinition definition;
     private boolean isSetUp = false;
@@ -13,16 +15,20 @@ public class FixtureLifecycle {
         return definition;
     }
 
-    public Object setUp(FixtureResolver resolver) {
-        if (!isSetUp) {
-            object = definition.setUp(resolver);
-            isSetUp = true;
-        }
+    public boolean isSetUp() {
+        return isSetUp;
+    }
+
+    public Object getObject() {
         return object;
     }
 
-    public boolean isSetUp() {
-        return isSetUp;
+    public Object setUp(List<Object> dependencies) {
+        if (!isSetUp) {
+            object = definition.setUp(dependencies);
+            isSetUp = true;
+        }
+        return object;
     }
 
     public void tearDown() {

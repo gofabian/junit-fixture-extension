@@ -3,6 +3,9 @@ package jfixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -13,11 +16,11 @@ public class FixtureLifecycleTest {
         Object objectTearedDown;
 
         private MyFixtureDefinition() {
-            super(Object.class, false);
+            super(Object.class, new ArrayList<>(), false);
         }
 
         @Override
-        public Object setUp(FixtureResolver resolver) {
+        public Object setUp(List<Object> dependencies) {
             i++;
             return "object" + i;
         }

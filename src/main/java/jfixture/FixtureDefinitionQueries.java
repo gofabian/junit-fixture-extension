@@ -1,18 +1,19 @@
 package jfixture;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class FixtureDefinitionBucket {
+public class FixtureDefinitionQueries {
 
     private final List<FixtureDefinition> definitions;
 
-    public FixtureDefinitionBucket(List<FixtureDefinition> definitions) {
+    public FixtureDefinitionQueries(List<FixtureDefinition> definitions) {
         this.definitions = definitions;
     }
 
-    public List<FixtureDefinition> findByAutoUse() {
-        return definitions.stream().filter(FixtureDefinition::isAutoUse).collect(Collectors.toList());
+    public List<FixtureDefinition> filterBy(Predicate<FixtureDefinition> predicate) {
+        return definitions.stream().filter(predicate).collect(Collectors.toList());
     }
 
     public FixtureDefinition findByType(Class<?> type) {
@@ -26,7 +27,7 @@ public class FixtureDefinitionBucket {
         return null;
     }
 
-    public static boolean supportsType(FixtureDefinition definition, Class<?> type) {
+    private static boolean supportsType(FixtureDefinition definition, Class<?> type) {
         return type.isAssignableFrom(definition.getType());
     }
 
