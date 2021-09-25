@@ -7,25 +7,23 @@ import java.util.Map;
 
 public class FixtureManager {
 
-    private final List<FixtureDefinition> definitions;
+    private final FixtureDefinitionBucket definitions;
     private final Map<FixtureDefinition, FixtureLifecycle> definitionLifecycleMap = new HashMap<>();
     private final List<FixtureLifecycle> setUpLifecycles = new ArrayList<>();
     private final FixtureResolver resolver = new FixtureResolver(this);
 
-    public FixtureManager(List<FixtureDefinition> definitions) {
+    public FixtureManager(FixtureDefinitionBucket definitions) {
         this.definitions = definitions;
     }
 
     public void setUp() {
-        for (var definition : definitions) {
-            if (definition.isAutoUse()) {
-                setUpDefinition(definition);
-            }
+        for (var definition : definitions.findByAutoUse()) {
+            setUpDefinition(definition);
         }
     }
 
     public Object setUp(Class<?> type) {
-        var definition = getFixtureDefinition(type);
+        var definition = definitions.findByType(type);
         if (definition == null) {
             throw new IllegalArgumentException("no fixture found for type " + type);
         }
@@ -39,19 +37,8 @@ public class FixtureManager {
         return object;
     }
 
-    public FixtureDefinition getFixtureDefinition(Class<?> type) {
-        var it = definitions.listIterator(definitions.size());
-        while (it.hasPrevious()) {
-            var definition = it.previous();
-            if (type.isAssignableFrom(definition.getType())) {
-                return definition;
-            }
-        }
-        return null;
-    }
-
     FixtureLifecycle getFixtureLifecycle(Class<?> type) {
-        var definition = getFixtureDefinition(type);
+        var definition = definitions.findByType(type);
         if (definition == null) {
             throw new IllegalArgumentException("no fixture found for type " + type);
         }

@@ -30,12 +30,12 @@ public class FixtureManagerTest {
     public void choose_last_definition_by_type() {
         var stringDefinition = new MyFixtureDefinition(String.class);
         var listDefinition = new MyFixtureDefinition(List.class);
-        var manager = new FixtureManager(Arrays.asList(stringDefinition, listDefinition));
+        var bucket = new FixtureDefinitionBucket(Arrays.asList(stringDefinition, listDefinition));
 
-        var definition = manager.getFixtureDefinition(String.class);
+        var definition = bucket.findByType(String.class);
         assertSame(stringDefinition, definition);
 
-        definition = manager.getFixtureDefinition(List.class);
+        definition = bucket.findByType(List.class);
         assertSame(listDefinition, definition);
     }
 
@@ -43,22 +43,23 @@ public class FixtureManagerTest {
     public void choose_sub_type_if_possible() {
         var listDefinition = new MyFixtureDefinition(List.class);
         var arrayListDefinition = new MyFixtureDefinition(ArrayList.class);
-        var manager = new FixtureManager(Arrays.asList(listDefinition, arrayListDefinition));
+        var bucket = new FixtureDefinitionBucket(Arrays.asList(listDefinition, arrayListDefinition));
 
-        var definition = manager.getFixtureDefinition(List.class);
+        var definition = bucket.findByType(List.class);
         assertSame(arrayListDefinition, definition);
     }
 
     @Test
     public void when_no_definition_chosen_then_exception_will_be_thrown() {
-        var manager = new FixtureManager(Collections.emptyList());
+        var manager = new FixtureManager(new FixtureDefinitionBucket(Collections.emptyList()));
         assertThrows(IllegalArgumentException.class, () -> manager.setUp(String.class));
     }
 
     @Test
     public void lifecycle_is_reused_for_same_requested_type() {
         var listDefinition = new MyFixtureDefinition(List.class);
-        var manager = new FixtureManager(Collections.singletonList(listDefinition));
+        var bucket = new FixtureDefinitionBucket(Collections.singletonList(listDefinition));
+        var manager = new FixtureManager(bucket);
 
         var object1 = manager.setUp(List.class);
         var object2 = manager.setUp(List.class);
@@ -68,7 +69,8 @@ public class FixtureManagerTest {
     @Test
     public void lifecycle_is_reused_for_same_definition_type() {
         var arrayListDefinition = new MyFixtureDefinition(ArrayList.class);
-        var manager = new FixtureManager(Collections.singletonList(arrayListDefinition));
+        var bucket = new FixtureDefinitionBucket(Collections.singletonList(arrayListDefinition));
+        var manager = new FixtureManager(bucket);
 
         var object1 = manager.setUp(ArrayList.class);
         var object2 = manager.setUp(List.class);
@@ -78,7 +80,8 @@ public class FixtureManagerTest {
     @Test
     public void set_up_type() {
         var intDefinition = new MyFixtureDefinition(int.class);
-        var manager = new FixtureManager(Collections.singletonList(intDefinition));
+        var bucket = new FixtureDefinitionBucket(Collections.singletonList(intDefinition));
+        var manager = new FixtureManager(bucket);
 
         assertFalse(manager.getFixtureLifecycle(int.class).isSetUp());
         manager.setUp(int.class);
@@ -88,7 +91,8 @@ public class FixtureManagerTest {
     @Test
     public void tear_down_all() {
         var stringDefinition = new MyFixtureDefinition(String.class);
-        var manager = new FixtureManager(Collections.singletonList(stringDefinition));
+        var bucket = new FixtureDefinitionBucket(Collections.singletonList(stringDefinition));
+        var manager = new FixtureManager(bucket);
 
         manager.setUp(String.class);
         assertTrue(manager.getFixtureLifecycle(String.class).isSetUp());
