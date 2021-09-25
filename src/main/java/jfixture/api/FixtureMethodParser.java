@@ -16,7 +16,7 @@ public class FixtureMethodParser {
 
         parseContainerInstance(testInstance, definitions);
 
-        var annotations = testInstance.getClass().getAnnotationsByType(UseFixtureContainer.class);
+        var annotations = testInstance.getClass().getAnnotationsByType(LoadFixtures.class);
         for (var annotation : annotations) {
             parseContainerClass(annotation.value(), definitions);
         }
