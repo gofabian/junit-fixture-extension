@@ -14,8 +14,20 @@ public class FixtureManager {
     }
 
     public void enter(Scope scope) {
-        for (var definition : definitions.filterBy(FixtureDefinition::isAutoUse)) {
+        for (var definition : definitions.filterBy(d -> d.getScope() == scope && d.isAutoUse())) {
             setUp(definition);
+        }
+    }
+
+    public void leave(Scope scope) {
+        var lifecycles = session.orderedLifecycles.stream()
+                .filter(l -> l.getDefinition().getScope() == scope)
+                .collect(Collectors.toList());
+        var it = lifecycles.listIterator(lifecycles.size());
+        while (it.hasPrevious()) {
+            var lifecycle = it.previous();
+            lifecycle.tearDown();
+            session.orderedLifecycles.remove(lifecycle);
         }
     }
 
@@ -44,15 +56,6 @@ public class FixtureManager {
 
         session.orderedLifecycles.add(lifecycle);
         return object;
-    }
-
-    public void leave(Scope scope) {
-        var lifecycles = session.orderedLifecycles;
-        var it = lifecycles.listIterator(lifecycles.size());
-        while (it.hasPrevious()) {
-            it.previous().tearDown();
-            it.remove();
-        }
     }
 
     FixtureLifecycle getFixtureLifecycle(FixtureDefinition definition) {

@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class FixtureExtension implements TestInstancePostProcessor, ParameterResolver,
-        BeforeTestExecutionCallback, AfterTestExecutionCallback {
+        BeforeAllCallback, AfterAllCallback, BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
     private static final Namespace NAMESPACE = Namespace.create(FixtureExtension.class);
 
@@ -21,9 +21,26 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     }
 
     @Override
+    public void beforeAll(ExtensionContext context) {
+    }
+
+    @Override
     public void beforeTestExecution(ExtensionContext context) {
         var manager = getManager(context);
+        manager.enter(Scope.CLASS);
         manager.enter(Scope.METHOD);
+    }
+
+    @Override
+    public void afterTestExecution(ExtensionContext extensionContext) {
+        var manager = getManager(extensionContext);
+        manager.leave(Scope.METHOD);
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) {
+        var manager = getManager(context);
+        manager.leave(Scope.CLASS);
     }
 
     @Override
@@ -38,12 +55,6 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
         var manager = getManager(extensionContext);
         var type = parameterContext.getParameter().getType();
         return manager.resolve(type);
-    }
-
-    @Override
-    public void afterTestExecution(ExtensionContext extensionContext) {
-        var manager = getManager(extensionContext);
-        manager.leave(Scope.METHOD);
     }
 
     private FixtureManager getManager(ExtensionContext context) {

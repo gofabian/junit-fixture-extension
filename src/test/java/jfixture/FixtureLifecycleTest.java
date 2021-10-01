@@ -16,7 +16,7 @@ public class FixtureLifecycleTest {
         Object objectTearedDown;
 
         private MyFixtureDefinition() {
-            super(Object.class, new ArrayList<>(), false);
+            super(Scope.METHOD, Object.class, new ArrayList<>(), false);
         }
 
         @Override

@@ -12,7 +12,7 @@ public class FixtureManagerTest {
 
     private static class MyFixtureDefinition extends FixtureDefinition {
         public MyFixtureDefinition(Class<?> type) {
-            super(type, new ArrayList<>(), false);
+            super(Scope.METHOD, type, new ArrayList<>(), false);
         }
 
         @Override

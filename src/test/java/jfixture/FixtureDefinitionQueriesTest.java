@@ -58,7 +58,7 @@ public class FixtureDefinitionQueriesTest {
 
     public static class FixtureDefinitionImpl extends FixtureDefinition {
         protected FixtureDefinitionImpl(Class<?> type) {
-            super(type, Collections.emptyList(), false);
+            super(Scope.METHOD, type, Collections.emptyList(), false);
         }
 
         @Override

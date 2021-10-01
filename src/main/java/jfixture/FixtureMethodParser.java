@@ -67,9 +67,11 @@ public class FixtureMethodParser {
         List<Class<?>> dependencyTypes = Arrays.stream(parameterTypes)
                 .filter(t -> t != FixtureContext.class)
                 .collect(Collectors.toList());
-        var autoUse = method.getAnnotation(Fixture.class).autoUse();
+        var annotation = method.getAnnotation(Fixture.class);
+        var scope = annotation.scope();
+        var autoUse = annotation.autoUse();
 
-        return new FixtureDefinition(type, dependencyTypes, autoUse) {
+        return new FixtureDefinition(scope, type, dependencyTypes, autoUse) {
             private FixtureContext context;
 
             @Override

@@ -4,14 +4,20 @@ import java.util.List;
 
 public abstract class FixtureDefinition {
 
+    private final Scope scope;
     private final Class<?> type;
     private final List<Class<?>> dependencyTypes;
     private final boolean autoUse;
 
-    protected FixtureDefinition(Class<?> type, List<Class<?>> dependencyTypes, boolean autoUse) {
+    protected FixtureDefinition(Scope scope, Class<?> type, List<Class<?>> dependencyTypes, boolean autoUse) {
+        this.scope = scope;
         this.type = type;
         this.dependencyTypes = dependencyTypes;
         this.autoUse = autoUse;
+    }
+
+    public Scope getScope() {
+        return scope;
     }
 
     public Class<?> getType() {
