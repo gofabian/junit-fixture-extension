@@ -11,6 +11,8 @@ Idea from: https://docs.pytest.org/en/6.2.x/fixture.html
     - [ ] fixtures in outer and inner test classes
     - [ ] order of find fixture by type? should be "last" first?
     - [ ] override fixture
+- [ ] support parallel execution
+- [ ] support static fixture methods
 - [x] autouse
 - [ ] @UseFixture
 - [ ] readme

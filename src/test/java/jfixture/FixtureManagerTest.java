@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FixtureSessionTest {
+public class FixtureManagerTest {
 
 
     private static class MyFixtureDefinition extends FixtureDefinition {
@@ -28,12 +28,12 @@ public class FixtureSessionTest {
     @Test
     public void lifecycle_is_reused_for_same_definition() {
         var listDefinition = new MyFixtureDefinition(List.class);
-        var session = new FixtureSession();
+        var manager = new FixtureManager();
 
-        var object1 = session.setUp(listDefinition);
-        var lifecycle1 = session.getFixtureLifecycle(listDefinition);
-        var object2 = session.setUp(listDefinition);
-        var lifecycle2 = session.getFixtureLifecycle(listDefinition);
+        var object1 = manager.setUp(listDefinition);
+        var lifecycle1 = manager.getFixtureLifecycle(listDefinition);
+        var object2 = manager.setUp(listDefinition);
+        var lifecycle2 = manager.getFixtureLifecycle(listDefinition);
         assertSame(object1, object2);
         assertSame(lifecycle1, lifecycle2);
         assertTrue(lifecycle1.isSetUp());
@@ -43,13 +43,13 @@ public class FixtureSessionTest {
     public void tear_down_all() {
         var stringDefinition = new MyFixtureDefinition(String.class);
         var booleanDefinition = new MyFixtureDefinition(Boolean.class);
-        var session = new FixtureSession();
-        session.setUp(stringDefinition);
-        session.setUp(booleanDefinition);
+        var manager = new FixtureManager();
+        manager.setUp(stringDefinition);
+        manager.setUp(booleanDefinition);
 
-        session.tearDown();
-        assertFalse(session.getFixtureLifecycle(stringDefinition).isSetUp());
-        assertFalse(session.getFixtureLifecycle(booleanDefinition).isSetUp());
+        manager.tearDown();
+        assertFalse(manager.getFixtureLifecycle(stringDefinition).isSetUp());
+        assertFalse(manager.getFixtureLifecycle(booleanDefinition).isSetUp());
     }
 
 }
