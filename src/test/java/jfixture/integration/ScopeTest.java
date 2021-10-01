@@ -43,6 +43,17 @@ public class ScopeTest {
         return 1337L;
     }
 
+    @Fixture(autoUse = true, scope = Scope.SESSION)
+    public int session(FixtureContext context) {
+        System.out.println("before session");
+        setUps.add("session");
+        context.addTearDown(() -> {
+            System.out.println("after session");
+            tearDowns.add("session");
+        });
+        return 42;
+    }
+
     @Test
     public void test1() {
         System.out.println("test1");
@@ -56,7 +67,7 @@ public class ScopeTest {
     public static class AfterAllCheck implements AfterAllCallback {
         @Override
         public void afterAll(ExtensionContext context) {
-            assertEquals(List.of("class", "method", "method"), setUps);
+            assertEquals(List.of("session", "class", "method", "method"), setUps);
             assertEquals(List.of("method", "method", "class"), tearDowns);
         }
     }

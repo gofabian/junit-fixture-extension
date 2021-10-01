@@ -22,11 +22,14 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
 
     @Override
     public void beforeAll(ExtensionContext context) {
+        var store = context.getRoot().getStore(NAMESPACE);
+        store.put("afterEngineCallback", (ExtensionContext.Store.CloseableResource) () -> afterSession(context));
     }
 
     @Override
     public void beforeTestExecution(ExtensionContext context) {
         var manager = getManager(context);
+        manager.enter(Scope.SESSION);
         manager.enter(Scope.CLASS);
         manager.enter(Scope.METHOD);
     }
@@ -41,6 +44,11 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     public void afterAll(ExtensionContext context) {
         var manager = getManager(context);
         manager.leave(Scope.CLASS);
+    }
+
+    public void afterSession(ExtensionContext context) {
+        var manager = getManager(context);
+        manager.leave(Scope.SESSION);
     }
 
     @Override
