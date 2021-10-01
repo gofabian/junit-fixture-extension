@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(FixtureExtension.class)
 public class TearDownOrderTest {
 
-    private final List<String> tearDowns = new ArrayList<>();
+    private static final List<String> tearDowns = new ArrayList<>();
 
     @Fixture
     public int integer(FixtureContext context) {
@@ -71,8 +71,11 @@ public class TearDownOrderTest {
             assertEquals("table", tearDowns.get(0));
             assertEquals("database", tearDowns.get(1));
         } else {
+            tearDowns.clear();
             fail();
         }
+
+        tearDowns.clear();
     }
 
 }

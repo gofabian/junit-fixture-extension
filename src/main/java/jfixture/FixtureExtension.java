@@ -13,9 +13,11 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     private static final Namespace NAMESPACE = Namespace.create(FixtureExtension.class);
 
     @Override
-    public void postProcessTestInstance(Object testInstance, ExtensionContext extensionContext) {
-        var plusDefinitions = new FixtureMethodParser().parseInstance(testInstance);
-        resetManager(plusDefinitions, extensionContext);
+    public void postProcessTestInstance(Object testInstance, ExtensionContext context) {
+        var parser = context.getRoot().getStore(NAMESPACE)
+                .getOrComputeIfAbsent("parser", k -> new FixtureMethodParser(), FixtureMethodParser.class);
+        var plusDefinitions = parser.parseInstance(testInstance);
+        resetManager(plusDefinitions, context);
     }
 
     @Override

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(FixtureExtension.class)
 public class AutoUseTest {
 
-    private boolean fixtureIsSetUp = false;
+    private static boolean fixtureIsSetUp = false;
 
     @AfterEach
     public void tearDown() {

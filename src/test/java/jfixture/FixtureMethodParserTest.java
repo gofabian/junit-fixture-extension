@@ -167,4 +167,30 @@ public class FixtureMethodParserTest {
         assertEquals(int.class, definitions.get(1).getType());
     }
 
+    @Test
+    public void parseSameClassTwice() {
+        var parser = new FixtureMethodParser();
+        var definitions1 = parser.parseClass(ParseMethodsExample.class);
+        var definitions2 = parser.parseClass(ParseMethodsExample.class);
+
+        assertSameElements(definitions1, definitions2);
+    }
+
+    @Test
+    public void parseSameInstanceTwice() {
+        var parser = new FixtureMethodParser();
+        var definitions1 = parser.parseInstance(new ParseExternalClassesExample());
+        var definitions2 = parser.parseClass(ParseExternalClassesExample.class);
+
+        assertSameElements(definitions1, definitions2);
+    }
+
+    private void assertSameElements(List<?> list1, List<?> list2) {
+        assertEquals(list1.size(), list2.size());
+        for (var i = 0; i < list1.size(); i++) {
+            assertSame(list1.get(i), list2.get(i));
+        }
+    }
+
+
 }

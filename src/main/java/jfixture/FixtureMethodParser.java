@@ -6,14 +6,26 @@ import jfixture.api.LoadFixtures;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FixtureMethodParser {
 
+    private final Map<Object, List<FixtureDefinition>> cache = new HashMap<>();
+
+    public List<FixtureDefinition> parseClass(Class<?> clazz) {
+        var instance = createInstance(clazz);
+        return parseInstance(instance);
+    }
+
     public List<FixtureDefinition> parseInstance(Object instance) {
+        {
+            var definitions = cache.get(instance.getClass());
+            if (definitions != null) {
+                return definitions;
+            }
+        }
+
         var definitions = new ArrayList<FixtureDefinition>();
 
         for (var externalClass : collectExternalClasses(instance.getClass())) {
@@ -26,12 +38,8 @@ public class FixtureMethodParser {
             definitions.add(plus);
         }
 
+        cache.put(instance.getClass(), definitions);
         return definitions;
-    }
-
-    public List<FixtureDefinition> parseClass(Class<?> clazz) {
-        var instance = createInstance(clazz);
-        return parseInstance(instance);
     }
 
     private List<Class<?>> collectExternalClasses(Class<?> clazz) {
