@@ -1,21 +1,56 @@
-package jfixture.parse;
+package jfixture;
 
-import jfixture.FixtureDefinition;
 import jfixture.api.Fixture;
 import jfixture.api.FixtureContext;
+import jfixture.api.LoadFixtures;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class FixtureDefinitionFactory {
+public class FixtureMethodParser {
 
-    public List<FixtureDefinition> createFixtureDefinitions(List<FixtureMethod> methods) {
-        return methods.stream()
-                .map(m -> createFixtureDefinition(m.getInstance(), m.getMethod()))
+    public List<FixtureDefinition> parseInstance(Object instance) {
+        var definitions = new ArrayList<FixtureDefinition>();
+
+        for (var externalClass : collectExternalClasses(instance.getClass())) {
+            var plus = parseClass(externalClass);
+            definitions.addAll(plus);
+        }
+
+        for (var method : collectMethodsFromClass(instance.getClass())) {
+            var plus = createFixtureDefinition(instance, method);
+            definitions.add(plus);
+        }
+
+        return definitions;
+    }
+
+    public List<FixtureDefinition> parseClass(Class<?> clazz) {
+        var instance = createInstance(clazz);
+        return parseInstance(instance);
+    }
+
+    private List<Class<?>> collectExternalClasses(Class<?> clazz) {
+        return Arrays.stream(clazz.getAnnotationsByType(LoadFixtures.class))
+                .map(LoadFixtures::value).collect(Collectors.toList());
+    }
+
+    private List<Method> collectMethodsFromClass(Class<?> clazz) {
+        return Arrays.stream(clazz.getMethods())
+                .filter(m -> m.getAnnotation(Fixture.class) != null)
                 .collect(Collectors.toList());
+    }
+
+    private Object createInstance(Class<?> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new IllegalArgumentException("cannot create instance of fixture container " + clazz, e);
+        }
     }
 
     public FixtureDefinition createFixtureDefinition(Object instance, Method method) {
@@ -60,6 +95,5 @@ class FixtureDefinitionFactory {
             }
         };
     }
-
 
 }

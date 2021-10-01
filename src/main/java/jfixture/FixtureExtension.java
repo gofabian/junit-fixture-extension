@@ -1,6 +1,5 @@
 package jfixture;
 
-import jfixture.parse.FixtureMethodParser;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
@@ -15,7 +14,7 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext extensionContext) {
-        var plusDefinitions = new FixtureMethodParser().parseFixtureDefinitions(testInstance);
+        var plusDefinitions = new FixtureMethodParser().parseInstance(testInstance);
         resetManager(plusDefinitions, extensionContext);
     }
 
