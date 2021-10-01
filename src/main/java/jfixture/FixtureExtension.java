@@ -4,6 +4,10 @@ import jfixture.parse.FixtureMethodParser;
 import org.junit.jupiter.api.extension.*;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class FixtureExtension implements TestInstancePostProcessor, ParameterResolver,
         BeforeTestExecutionCallback, AfterTestExecutionCallback {
 
@@ -11,53 +15,52 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
 
     @Override
     public void postProcessTestInstance(Object testInstance, ExtensionContext extensionContext) {
-        var definitions = new FixtureMethodParser().parseFixtureDefinitions(testInstance);
-
-        setToStore(new FixtureDefinitionQueries(definitions), extensionContext);
-        setToStore(new FixtureManager(), extensionContext);
+        var plusDefinitions = new FixtureMethodParser().parseFixtureDefinitions(testInstance);
+        resetManager(plusDefinitions, extensionContext);
     }
 
     @Override
     public void beforeTestExecution(ExtensionContext context) {
-        var queries = getFromStore(FixtureDefinitionQueries.class, context);
-        var manager = getFromStore(FixtureManager.class, context);
-
-        for (var definition : queries.filterBy(FixtureDefinition::isAutoUse)) {
-            manager.setUp(definition);
-        }
+        var manager = getManager(context);
+        manager.enter(Scope.METHOD);
     }
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        var queries = getFromStore(FixtureDefinitionQueries.class, extensionContext);
-
+        var manager = getManager(extensionContext);
         var type = parameterContext.getParameter().getType();
-        return queries.findByType(type) != null;
+        return manager.supports(type);
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        var queries = getFromStore(FixtureDefinitionQueries.class, extensionContext);
-        var manager = getFromStore(FixtureManager.class, extensionContext);
-
+        var manager = getManager(extensionContext);
         var type = parameterContext.getParameter().getType();
-        var definition = queries.findByType(type);
-        return manager.setUp(definition);
+        return manager.resolve(type);
     }
 
     @Override
     public void afterTestExecution(ExtensionContext extensionContext) {
-        var manager = getFromStore(FixtureManager.class, extensionContext);
-        manager.tearDown();
+        var manager = getManager(extensionContext);
+        manager.leave(Scope.METHOD);
     }
 
-    private <T> T getFromStore(Class<T> type, ExtensionContext extensionContext) {
-        var store = extensionContext.getStore(NAMESPACE);
-        return store.get(type, type);
+    private FixtureManager getManager(ExtensionContext context) {
+        var store = context.getStore(NAMESPACE);
+        return store.getOrComputeIfAbsent("manager", k -> resetManager(Collections.emptyList(), context), FixtureManager.class);
     }
 
-    private void setToStore(Object object, ExtensionContext extensionContext) {
-        var store = extensionContext.getStore(NAMESPACE);
-        store.put(object.getClass(), object);
+    private FixtureManager resetManager(List<FixtureDefinition> plusDefinitions, ExtensionContext context) {
+        var session = context.getRoot().getStore(NAMESPACE)
+                .getOrComputeIfAbsent("session", k -> new FixtureSession(), FixtureSession.class);
+        var store = context.getStore(NAMESPACE);
+        //noinspection unchecked
+        var oldDefinitions = (List<FixtureDefinition>) store.getOrComputeIfAbsent("definitions", k -> new ArrayList<>());
+        var definitions = new ArrayList<>(oldDefinitions);
+        definitions.addAll(plusDefinitions);
+        var manager = new FixtureManager(session, definitions);
+        store.put("manager", new FixtureManager(session, plusDefinitions));
+        return manager;
     }
+
 }

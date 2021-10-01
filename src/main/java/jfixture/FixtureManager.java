@@ -1,17 +1,38 @@
 package jfixture;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FixtureManager {
 
-    private final Map<FixtureDefinition, FixtureLifecycle> definitionLifecycleMap = new HashMap<>();
-    private final List<FixtureLifecycle> setUpLifecycles = new ArrayList<>();
+    private final FixtureSession session;
+    private final FixtureDefinitionQueries definitions;
 
-    public Object setUp(FixtureDefinition definition) {
+    public FixtureManager(FixtureSession session, List<FixtureDefinition> definitions) {
+        this.session = session;
+        this.definitions = new FixtureDefinitionQueries(definitions);
+    }
+
+    public void enter(Scope scope) {
+        for (var definition : definitions.filterBy(FixtureDefinition::isAutoUse)) {
+            setUp(definition);
+        }
+    }
+
+    public boolean supports(Class<?> type) {
+        var definition = definitions.findByType(type);
+        return definition != null;
+    }
+
+    public Object resolve(Class<?> type) {
+        var definition = definitions.findByType(type);
+        if (definition == null) {
+            throw new IllegalArgumentException("could not find fixture of type " + type);
+        }
+        return setUp(definition);
+    }
+
+    private Object setUp(FixtureDefinition definition) {
         var lifecycle = getFixtureLifecycle(definition);
         if (lifecycle.isSetUp()) {
             return lifecycle.getObject();
@@ -21,20 +42,21 @@ public class FixtureManager {
                 .map(this::setUp).collect(Collectors.toList());
         var object = lifecycle.setUp(dependencies);
 
-        setUpLifecycles.add(lifecycle);
+        session.orderedLifecycles.add(lifecycle);
         return object;
     }
 
-    public void tearDown() {
-        var it = setUpLifecycles.listIterator(setUpLifecycles.size());
+    public void leave(Scope scope) {
+        var lifecycles = session.orderedLifecycles;
+        var it = lifecycles.listIterator(lifecycles.size());
         while (it.hasPrevious()) {
             it.previous().tearDown();
             it.remove();
         }
     }
 
-    public FixtureLifecycle getFixtureLifecycle(FixtureDefinition definition) {
-        return definitionLifecycleMap.computeIfAbsent(definition, d -> new FixtureLifecycle(definition));
+    FixtureLifecycle getFixtureLifecycle(FixtureDefinition definition) {
+        return session.definitionLifecycleMap.computeIfAbsent(definition, d -> new FixtureLifecycle(definition));
     }
 
 }

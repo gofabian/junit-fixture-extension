@@ -28,11 +28,11 @@ public class FixtureManagerTest {
     @Test
     public void lifecycle_is_reused_for_same_definition() {
         var listDefinition = new MyFixtureDefinition(List.class);
-        var manager = new FixtureManager();
+        var manager = new FixtureManager(new FixtureSession(), List.of(listDefinition));
 
-        var object1 = manager.setUp(listDefinition);
+        var object1 = manager.resolve(List.class);
         var lifecycle1 = manager.getFixtureLifecycle(listDefinition);
-        var object2 = manager.setUp(listDefinition);
+        var object2 = manager.resolve(List.class);
         var lifecycle2 = manager.getFixtureLifecycle(listDefinition);
         assertSame(object1, object2);
         assertSame(lifecycle1, lifecycle2);
@@ -43,11 +43,11 @@ public class FixtureManagerTest {
     public void tear_down_all() {
         var stringDefinition = new MyFixtureDefinition(String.class);
         var booleanDefinition = new MyFixtureDefinition(Boolean.class);
-        var manager = new FixtureManager();
-        manager.setUp(stringDefinition);
-        manager.setUp(booleanDefinition);
+        var manager = new FixtureManager(new FixtureSession(), List.of(stringDefinition, booleanDefinition));
+        manager.resolve(String.class);
+        manager.resolve(Boolean.class);
 
-        manager.tearDown();
+        manager.leave(Scope.METHOD);
         assertFalse(manager.getFixtureLifecycle(stringDefinition).isSetUp());
         assertFalse(manager.getFixtureLifecycle(booleanDefinition).isSetUp());
     }
