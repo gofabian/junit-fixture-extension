@@ -1,87 +1,32 @@
 package jfixture.parse;
 
 import jfixture.FixtureDefinition;
-import jfixture.FixtureDefinitionQueries;
 import jfixture.api.Fixture;
 import jfixture.api.FixtureContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 class FixtureDefinitionFactory {
 
     public List<FixtureDefinition> createFixtureDefinitions(List<FixtureMethod> methods) {
-        List<FixtureDefinition> topLevelDefinitions = new ArrayList<>();
-        Map<FixtureMethod, FixtureDefinition> createdDefinitions = new HashMap<>();
-        List<FixtureMethod> remainingMethods = new ArrayList<>(methods);
-
-        for (var method : methods) {
-            var definition = createFixtureDefinition(method, createdDefinitions, remainingMethods);
-            topLevelDefinitions.add(definition);
-        }
-        return topLevelDefinitions;
+        return methods.stream()
+                .map(m -> createFixtureDefinition(m.getInstance(), m.getMethod()))
+                .collect(Collectors.toList());
     }
 
-    private FixtureDefinition createFixtureDefinition(FixtureMethod method,
-                                                      Map<FixtureMethod, FixtureDefinition> createdDefinitions,
-                                                      List<FixtureMethod> remainingMethods) {
-        var definition = createdDefinitions.get(method);
-        if (definition != null) {
-            return definition;
-        }
-
-        remainingMethods.remove(method);
-        List<FixtureDefinition> dependencies = getDependencies(method, createdDefinitions, remainingMethods);
-        definition = createFixtureDefinition(method.getInstance(), method.getMethod(), dependencies);
-        createdDefinitions.put(method, definition);
-        return definition;
-    }
-
-    private List<FixtureDefinition> getDependencies(FixtureMethod method,
-                                                    Map<FixtureMethod, FixtureDefinition> createdDefinitions,
-                                                    List<FixtureMethod> remainingMethods) {
-        List<FixtureDefinition> dependencies = new ArrayList<>(method.getMethod().getParameterCount());
-        for (var type : method.getMethod().getParameterTypes()) {
-            if (type != FixtureContext.class) {
-                try {
-                    var definition = getDependency(type, createdDefinitions, remainingMethods);
-                    dependencies.add(definition);
-                } catch (Exception e) {
-                    // todo: reasonable log message
-                    throw e;
-                }
-            }
-        }
-        return dependencies;
-    }
-
-    private FixtureDefinition getDependency(Class<?> type,
-                                            Map<FixtureMethod, FixtureDefinition> createdDefinitions,
-                                            List<FixtureMethod> remainingMethods) {
-
-        for (var method : remainingMethods) {
-            // todo: generalize this / from Bucket? / FixtureId(type)?
-            if (type.isAssignableFrom(method.getMethod().getReturnType())) {
-                return createFixtureDefinition(method, createdDefinitions, remainingMethods);
-            }
-        }
-
-        var bucket = new FixtureDefinitionQueries(new ArrayList<>(createdDefinitions.values()));
-        var definition = bucket.findByType(type);
-        if (definition != null) {
-            return definition;
-        }
-
-        throw new IllegalArgumentException("cannot resolve dependency " + type);
-    }
-
-    public FixtureDefinition createFixtureDefinition(Object instance, Method method, List<FixtureDefinition> dependencies) {
+    public FixtureDefinition createFixtureDefinition(Object instance, Method method) {
         var type = method.getReturnType();
         var parameterTypes = method.getParameterTypes();
+        List<Class<?>> dependencyTypes = Arrays.stream(parameterTypes)
+                .filter(t -> t != FixtureContext.class)
+                .collect(Collectors.toList());
         var autoUse = method.getAnnotation(Fixture.class).autoUse();
 
-        return new FixtureDefinition(type, dependencies, autoUse) {
+        return new FixtureDefinition(type, dependencyTypes, autoUse) {
             private FixtureContext context;
 
             @Override

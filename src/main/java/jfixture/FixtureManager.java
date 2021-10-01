@@ -38,8 +38,8 @@ public class FixtureManager {
             return lifecycle.getObject();
         }
 
-        var dependencies = definition.getDependencies().stream()
-                .map(this::setUp).collect(Collectors.toList());
+        var dependencies = definition.getDependencyTypes().stream()
+                .map(this::resolve).collect(Collectors.toList());
         var object = lifecycle.setUp(dependencies);
 
         session.orderedLifecycles.add(lifecycle);

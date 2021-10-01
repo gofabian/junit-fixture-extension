@@ -55,11 +55,10 @@ public class FixtureDefinitionFactoryTest {
         @Test
         public void create_fixture_without_parameters() {
             var definition = factory.createFixtureDefinition(new Example(),
-                    getMethod(Example.class, "simple"),
-                    Collections.emptyList());
+                    getMethod(Example.class, "simple"));
 
             assertSame(String.class, definition.getType());
-            assertEquals(Collections.emptyList(), definition.getDependencies());
+            assertEquals(Collections.emptyList(), definition.getDependencyTypes());
             assertFalse(definition.isAutoUse());
 
             var object = definition.setUp(Collections.emptyList());
@@ -70,8 +69,7 @@ public class FixtureDefinitionFactoryTest {
         public void create_fixture_with_tear_down() {
             var instance = new Example();
             var definition = factory.createFixtureDefinition(instance,
-                    getMethod(Example.class, "tearDown"),
-                    Collections.emptyList());
+                    getMethod(Example.class, "tearDown"));
 
             var object = definition.setUp(Collections.emptyList());
             assertEquals(42L, object);
@@ -85,8 +83,7 @@ public class FixtureDefinitionFactoryTest {
         public void create_fixture_with_parameters() {
             var instance = new Example();
             var definition = factory.createFixtureDefinition(instance,
-                    getMethod(Example.class, "parameters"),
-                    Collections.emptyList());
+                    getMethod(Example.class, "parameters"));
 
             var object = definition.setUp(Arrays.asList("string", 123L));
             assertEquals(1337, object);
@@ -99,8 +96,7 @@ public class FixtureDefinitionFactoryTest {
         @Test
         public void create_fixture_with_missing_parameter() {
             var definition = factory.createFixtureDefinition(new Example(),
-                    getMethod(Example.class, "parameters"),
-                    Collections.emptyList());
+                    getMethod(Example.class, "parameters"));
 
             assertThrows(IllegalArgumentException.class, () ->
                     definition.setUp(Collections.singletonList("string"))
@@ -110,8 +106,7 @@ public class FixtureDefinitionFactoryTest {
         @Test
         public void create_fixture_with_setup_error() {
             var definition = factory.createFixtureDefinition(new Example(),
-                    getMethod(Example.class, "error"),
-                    Collections.emptyList());
+                    getMethod(Example.class, "error"));
 
             assertThrows(IllegalStateException.class, () ->
                     definition.setUp(Collections.emptyList())
@@ -149,10 +144,10 @@ public class FixtureDefinitionFactoryTest {
             assertEquals(2, definitions.size());
             assertEquals(String.class, definitions.get(0).getType());
             assertFalse(definitions.get(0).isAutoUse());
-            assertEquals(Collections.emptyList(), definitions.get(0).getDependencies());
+            assertEquals(Collections.emptyList(), definitions.get(0).getDependencyTypes());
             assertEquals(int.class, definitions.get(1).getType());
             assertTrue(definitions.get(1).isAutoUse());
-            assertEquals(Collections.emptyList(), definitions.get(1).getDependencies());
+            assertEquals(Collections.emptyList(), definitions.get(1).getDependencyTypes());
         }
 
         @Test
@@ -177,10 +172,10 @@ public class FixtureDefinitionFactoryTest {
 
                 assertEquals(2, definitions.size());
                 assertEquals(String.class, definitions.get(0).getType());
-                assertEquals(1, definitions.get(0).getDependencies().size());
-                assertSame(definitions.get(1), definitions.get(0).getDependencies().get(0));
+                assertEquals(1, definitions.get(0).getDependencyTypes().size());
+                assertSame(int.class, definitions.get(0).getDependencyTypes().get(0));
                 assertEquals(int.class, definitions.get(1).getType());
-                assertEquals(Collections.emptyList(), definitions.get(1).getDependencies());
+                assertEquals(Collections.emptyList(), definitions.get(1).getDependencyTypes());
             }
             {
                 var definitions = factory.createFixtureDefinitions(Arrays.asList(
@@ -190,29 +185,12 @@ public class FixtureDefinitionFactoryTest {
 
                 assertEquals(2, definitions.size());
                 assertEquals(int.class, definitions.get(0).getType());
-                assertEquals(Collections.emptyList(), definitions.get(0).getDependencies());
+                assertEquals(Collections.emptyList(), definitions.get(0).getDependencyTypes());
                 assertEquals(String.class, definitions.get(1).getType());
-                assertEquals(1, definitions.get(1).getDependencies().size());
-                assertSame(definitions.get(0), definitions.get(1).getDependencies().get(0));
+                assertEquals(1, definitions.get(1).getDependencyTypes().size());
+                assertSame(int.class, definitions.get(1).getDependencyTypes().get(0));
             }
         }
-
-        @Test
-        public void create_fixtures_with_missing_dependency() {
-            class Example {
-                @Fixture
-                public String string(int integer) {
-                    return "string" + integer;
-                }
-            }
-
-            assertThrows(IllegalArgumentException.class, () ->
-                    factory.createFixtureDefinitions(Collections.singletonList(
-                            new FixtureMethod(new Example(), getMethod(Example.class, "string"))
-                    ))
-            );
-        }
-
     }
 
     private Method getMethod(Class<?> type, String methodName) {
