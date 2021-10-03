@@ -36,4 +36,14 @@ public abstract class FixtureDefinition {
 
     public abstract void tearDown(Object object);
 
+    @Override
+    public String toString() {
+        return "FixtureDefinition{" +
+                "scope=" + scope +
+                ", type=" + type +
+                ", dependencyTypes=" + dependencyTypes +
+                ", autoUse=" + autoUse +
+                '}';
+    }
+
 }

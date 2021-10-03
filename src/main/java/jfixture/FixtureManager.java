@@ -1,5 +1,6 @@
 package jfixture;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,25 +38,39 @@ public class FixtureManager {
     }
 
     public Object resolve(Class<?> type) {
-        var definition = definitions.findByType(type);
-        if (definition == null) {
-            throw new IllegalArgumentException("could not find fixture of type " + type);
-        }
+        var definition = getFixtureDefinition(type);
         return setUp(definition);
     }
 
     private Object setUp(FixtureDefinition definition) {
         var lifecycle = getFixtureLifecycle(definition);
+
         if (lifecycle.isSetUp()) {
             return lifecycle.getObject();
         }
 
-        var dependencies = definition.getDependencyTypes().stream()
-                .map(this::resolve).collect(Collectors.toList());
-        var object = lifecycle.setUp(dependencies);
+        var dependencies = new ArrayList<>();
+        for (var type : definition.getDependencyTypes()) {
+            var dependencyDefinition = getFixtureDefinition(type);
+            if (dependencyDefinition.getScope().getOrder() > definition.getScope().getOrder()) {
+                throw new IllegalArgumentException("Fixture has wider scope than dependency: " +
+                        "fixture=" + definition + ", dependency: " + dependencyDefinition);
+            }
+            var dependency = setUp(dependencyDefinition);
+            dependencies.add(dependency);
+        }
 
+        var object = lifecycle.setUp(dependencies);
         session.orderedLifecycles.add(lifecycle);
         return object;
+    }
+
+    private FixtureDefinition getFixtureDefinition(Class<?> type) {
+        var definition = definitions.findByType(type);
+        if (definition == null) {
+            throw new IllegalArgumentException("could not find fixture of type " + type);
+        }
+        return definition;
     }
 
     FixtureLifecycle getFixtureLifecycle(FixtureDefinition definition) {

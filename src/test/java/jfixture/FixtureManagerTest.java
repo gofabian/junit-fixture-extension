@@ -15,6 +15,10 @@ public class FixtureManagerTest {
             super(Scope.METHOD, type, new ArrayList<>(), false);
         }
 
+        public MyFixtureDefinition(Class<?> type, Scope scope, List<Class<?>> dependencyTypes) {
+            super(scope, type, dependencyTypes, false);
+        }
+
         @Override
         public Object setUp(List<Object> dependencies) {
             return Math.random();
@@ -50,6 +54,15 @@ public class FixtureManagerTest {
         manager.leave(Scope.METHOD);
         assertFalse(manager.getFixtureLifecycle(stringDefinition).isSetUp());
         assertFalse(manager.getFixtureLifecycle(booleanDefinition).isSetUp());
+    }
+
+    @Test
+    public void set_up_scope_dependency_with_lower_order() {
+        var childDefinition = new MyFixtureDefinition(String.class, Scope.METHOD, List.of());
+        var parentDefinition = new MyFixtureDefinition(int.class, Scope.CLASS, List.of(String.class));
+        var manager = new FixtureManager(new FixtureSession(), List.of(childDefinition, parentDefinition));
+
+        assertThrows(IllegalArgumentException.class, () -> manager.resolve(int.class));
     }
 
 }
