@@ -8,16 +8,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class FixtureExtension implements TestInstancePostProcessor, ParameterResolver,
-        BeforeAllCallback, AfterAllCallback, BeforeTestExecutionCallback, AfterTestExecutionCallback {
+        BeforeAllCallback, BeforeTestExecutionCallback, AfterTestExecutionCallback, AfterAllCallback {
 
     private static final Namespace NAMESPACE = Namespace.create(FixtureExtension.class);
 
     @Override
     public void beforeAll(ExtensionContext context) {
-        var rootContext = context.getRoot();
-        var store = rootContext.getStore(NAMESPACE);
-        var callback = (ExtensionContext.Store.CloseableResource) () -> afterSession(context.getRoot());
-        store.getOrComputeIfAbsent("afterSessionCallback", k -> callback);
+        ExtensionContextUtil.registerAfterSessionCallback(context, this::afterSession);
     }
 
     @Override
@@ -33,6 +30,7 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     public void beforeTestExecution(ExtensionContext context) {
         var manager = getManager(context);
         manager.enter(Scope.SESSION);
+        manager.enter(Scope.FILE);
         manager.enter(Scope.CLASS);
         manager.enter(Scope.METHOD);
     }
@@ -48,9 +46,13 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     public void afterAll(ExtensionContext context) {
         var manager = getManager(context);
         manager.leave(Scope.CLASS);
+
+        if (ExtensionContextUtil.isOuterClassContext(context)) {
+            manager.leave(Scope.FILE);
+        }
     }
 
-    public void afterSession(ExtensionContext context) {
+    private void afterSession(ExtensionContext context) {
         var manager = getManager(context);
         manager.leave(Scope.SESSION);
     }

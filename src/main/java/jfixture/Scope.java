@@ -2,8 +2,9 @@ package jfixture;
 
 public enum Scope {
     SESSION(1),
-    CLASS(2),
-    METHOD(3);
+    FILE(2),
+    CLASS(3),
+    METHOD(4);
 
     private final int order;
 

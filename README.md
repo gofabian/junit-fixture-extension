@@ -4,7 +4,7 @@ Idea from: https://docs.pytest.org/en/6.2.x/fixture.html
 
 ## todo
 
-- [ ] file scope?
+- [x] file scope
 - [x] nested test classes
 - [ ] fixtures in beforeXxx()/afterXxx()?
 - [x] override fixture in higher scope?
