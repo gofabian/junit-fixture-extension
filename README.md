@@ -5,9 +5,9 @@ Idea from: https://docs.pytest.org/en/6.2.x/fixture.html
 ## todo
 
 - [ ] file scope?
-- [ ] nested test classes (works?)
+- [x] nested test classes
 - [ ] fixtures in beforeXxx()/afterXxx()?
-- [ ] override fixture in higher scope?
+- [x] override fixture in higher scope?
 - [ ] reference fixture by name (not only by type)
 - [ ] @UseFixture
 - [ ] readme

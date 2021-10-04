@@ -13,18 +13,21 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     private static final Namespace NAMESPACE = Namespace.create(FixtureExtension.class);
 
     @Override
-    public void postProcessTestInstance(Object testInstance, ExtensionContext context) {
-        var parser = context.getRoot().getStore(NAMESPACE)
-                .getOrComputeIfAbsent("parser", k -> new FixtureMethodParser(), FixtureMethodParser.class);
-        var plusDefinitions = parser.parseInstance(testInstance);
-        resetManager(plusDefinitions, context);
+    public void beforeAll(ExtensionContext context) {
+        var rootContext = context.getRoot();
+        var store = rootContext.getStore(NAMESPACE);
+        var callback = (ExtensionContext.Store.CloseableResource) () -> afterSession(context.getRoot());
+        store.getOrComputeIfAbsent("afterSessionCallback", k -> callback);
     }
 
     @Override
-    public void beforeAll(ExtensionContext context) {
-        var store = context.getRoot().getStore(NAMESPACE);
-        store.put("afterEngineCallback", (ExtensionContext.Store.CloseableResource) () -> afterSession(context));
+    public void postProcessTestInstance(Object testInstance, ExtensionContext context) {
+        var parser = context.getRoot().getStore(NAMESPACE)
+                .getOrComputeIfAbsent("parser", k -> new FixtureMethodParser(), FixtureMethodParser.class);
+        var definitions = parser.parseInstance(testInstance);
+        storeAdditionalDefinitions(definitions, context);
     }
+
 
     @Override
     public void beforeTestExecution(ExtensionContext context) {
@@ -33,6 +36,7 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
         manager.enter(Scope.CLASS);
         manager.enter(Scope.METHOD);
     }
+
 
     @Override
     public void afterTestExecution(ExtensionContext extensionContext) {
@@ -51,6 +55,7 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
         manager.leave(Scope.SESSION);
     }
 
+
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         var manager = getManager(extensionContext);
@@ -65,22 +70,32 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
         return manager.resolve(type);
     }
 
+
     private FixtureManager getManager(ExtensionContext context) {
         var store = context.getStore(NAMESPACE);
-        return store.getOrComputeIfAbsent("manager", k -> resetManager(Collections.emptyList(), context), FixtureManager.class);
+        return store.getOrComputeIfAbsent("manager", k -> storeEmptyManager(context), FixtureManager.class);
     }
 
-    private FixtureManager resetManager(List<FixtureDefinition> plusDefinitions, ExtensionContext context) {
-        var session = context.getRoot().getStore(NAMESPACE)
-                .getOrComputeIfAbsent("session", k -> new FixtureSession(), FixtureSession.class);
+    private FixtureManager storeAdditionalDefinitions(List<FixtureDefinition> plusDefinitions, ExtensionContext context) {
+        // store definitions
         var store = context.getStore(NAMESPACE);
         //noinspection unchecked
-        var oldDefinitions = (List<FixtureDefinition>) store.getOrComputeIfAbsent("definitions", k -> new ArrayList<>());
-        var definitions = new ArrayList<>(oldDefinitions);
-        definitions.addAll(plusDefinitions);
-        var manager = new FixtureManager(session, definitions);
-        store.put("manager", new FixtureManager(session, plusDefinitions));
+        var parentDefinitions = (List<FixtureDefinition>) store.getOrDefault("definitions", List.class, new ArrayList<>());
+        var childDefinitions = new ArrayList<>(parentDefinitions);
+        childDefinitions.addAll(plusDefinitions);
+        store.put("definitions", childDefinitions);
+
+        // store manager
+        var session = context.getRoot().getStore(NAMESPACE)
+                .getOrComputeIfAbsent("session", k -> new FixtureSession(), FixtureSession.class);
+        var manager = new FixtureManager(session, childDefinitions);
+        context.getStore(NAMESPACE).put("manager", manager);
         return manager;
     }
+
+    private FixtureManager storeEmptyManager(ExtensionContext context) {
+        return storeAdditionalDefinitions(Collections.emptyList(), context);
+    }
+
 
 }
