@@ -9,7 +9,6 @@ A Fixture is something you can
 
 More about fixtures: <https://docs.pytest.org/en/6.2.x/fixture.html>
 
-<!--
 ## Add fixtures to your project
 
 ```xml
@@ -20,7 +19,6 @@ More about fixtures: <https://docs.pytest.org/en/6.2.x/fixture.html>
     <scope>test</scope>
 </dependency>
 ```
--->
 
 ## Use fixtures in tests
 
