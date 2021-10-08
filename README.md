@@ -26,10 +26,10 @@ More about fixtures: <https://docs.pytest.org/en/6.2.x/fixture.html>
 
 <table>
 <tr>
-<th style="background-color: #c6f6c6">With Fixture Extension</th>
-<th style="background-color: #eeeeee">Plain JUnit 5</th>
+<th>With Fixture Extension</th>
+<th>Plain JUnit 5</th>
 </tr>
-<tr><td style="vertical-align: top">
+<tr><td valign="top">
 
 ```java
 @ExtendWith(FixtureExtension.class)
@@ -50,7 +50,7 @@ class TestClass {
 
 }
 ```
-</td><td style="vertical-align: top">
+</td><td valign="top">
 
 ```
 class TestClass {
@@ -79,7 +79,7 @@ class TestClass {
 ## Use fixture scopes
 
 <table>
-<tr><td style="vertical-align: top">
+<tr><td valign="top">
 
 ```java
 @ExtendWith(FixtureExtension.class)
@@ -126,7 +126,7 @@ class TestClass {
 }
 ```
 
-</td><td style="vertical-align: top; min-width: 250px">
+</td><td valign="top" width="250px">
 
 ```
 Test Output:
@@ -178,7 +178,7 @@ class TestClass {
 ## Load fixtures from other classes
 
 <table>
-<tr><td style="vertical-align: top">
+<tr><td valign="top">
 
 ```java
 @ExtendWith(FixtureExtension.class)
@@ -199,7 +199,7 @@ class TestClass {
 }
 ```
 
-</td><td style="vertical-align: top">
+</td><td valign="top">
 
 ```java
 class DatabaseFixtures {
@@ -241,7 +241,7 @@ class TestClass {
 ## Use fixtures in nested tests
 
 <table>
-<tr><td style="vertical-align: top">
+<tr><td valign="top">
 
 ```java
 @ExtendWith(FixtureExtension.class)
@@ -280,7 +280,7 @@ class TestClass {
 }
 ```
 
-</td><td style="vertical-align: top; min-width: 250px">
+</td><td valign="top" width="250px">
 
 ```
 Test Output:
