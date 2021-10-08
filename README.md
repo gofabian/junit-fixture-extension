@@ -54,6 +54,7 @@ class TestClass {
 
 ```
 class TestClass {
+    Database db;
 
     @BeforeEach
     void setUp() {
