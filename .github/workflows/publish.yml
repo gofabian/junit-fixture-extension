@@ -15,6 +15,7 @@ jobs:
           server-id: ossrh
           server-username: OSSRH_USERNAME
           server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
       - name: Publish package
         run: mvn --batch-mode deploy
         env:
