@@ -14,7 +14,7 @@ More about fixtures: <https://docs.pytest.org/en/6.2.x/fixture.html>
 
 ```xml
 <dependency>
-    <groupId>de.gofaian</groupId>
+    <groupId>de.gofabian</groupId>
     <artifactId>junit-fixture-extension</artifactId>
     <version>to-be-done</version>
     <scope>test</scope>

@@ -1,4 +1,4 @@
-package jfixture;
+package de.gofabian.jfixture;
 
 import org.junit.jupiter.api.Test;
 

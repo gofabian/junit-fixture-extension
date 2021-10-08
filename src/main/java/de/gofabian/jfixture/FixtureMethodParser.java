@@ -1,8 +1,8 @@
-package jfixture;
+package de.gofabian.jfixture;
 
-import jfixture.api.Fixture;
-import jfixture.api.FixtureContext;
-import jfixture.api.LoadFixtures;
+import de.gofabian.jfixture.api.Fixture;
+import de.gofabian.jfixture.api.FixtureContext;
+import de.gofabian.jfixture.api.LoadFixtures;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

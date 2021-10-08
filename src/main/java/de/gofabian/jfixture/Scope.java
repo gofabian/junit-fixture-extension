@@ -1,4 +1,4 @@
-package jfixture;
+package de.gofabian.jfixture;
 
 public enum Scope {
     SESSION(1),

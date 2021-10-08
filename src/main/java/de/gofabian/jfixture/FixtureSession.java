@@ -1,4 +1,4 @@
-package jfixture;
+package de.gofabian.jfixture;
 
 import java.util.ArrayList;
 import java.util.HashMap;

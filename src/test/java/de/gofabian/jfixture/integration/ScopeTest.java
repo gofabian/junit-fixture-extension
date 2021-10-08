@@ -1,10 +1,10 @@
-package jfixture.integration;
+package de.gofabian.jfixture.integration;
 
-import jfixture.ExtensionContextUtil;
-import jfixture.FixtureExtension;
-import jfixture.Scope;
-import jfixture.api.Fixture;
-import jfixture.api.FixtureContext;
+import de.gofabian.jfixture.ExtensionContextUtil;
+import de.gofabian.jfixture.FixtureExtension;
+import de.gofabian.jfixture.Scope;
+import de.gofabian.jfixture.api.Fixture;
+import de.gofabian.jfixture.api.FixtureContext;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

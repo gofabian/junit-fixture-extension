@@ -1,6 +1,6 @@
-package jfixture.integration;
+package de.gofabian.jfixture.integration;
 
-import jfixture.api.Fixture;
+import de.gofabian.jfixture.api.Fixture;
 
 public class ExampleFixtures {
 

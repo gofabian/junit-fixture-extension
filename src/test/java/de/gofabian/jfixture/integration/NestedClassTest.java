@@ -1,7 +1,7 @@
-package jfixture.integration;
+package de.gofabian.jfixture.integration;
 
-import jfixture.FixtureExtension;
-import jfixture.api.Fixture;
+import de.gofabian.jfixture.FixtureExtension;
+import de.gofabian.jfixture.api.Fixture;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

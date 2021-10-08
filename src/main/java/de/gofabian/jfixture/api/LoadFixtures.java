@@ -1,4 +1,4 @@
-package jfixture.api;
+package de.gofabian.jfixture.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
