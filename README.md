@@ -301,10 +301,26 @@ file-down
 
 [MIT License](LICENSE)
 
+## Development
+
+Run tests:
+
+    mvn test
+
+## Release
+
+Set new version (implicit `git tag` and `git push`):
+
+    ./bump_version.sh x.y.z
+
+Create a release in Github and the Github workflow will automatically publish it to Maven Central.
+
+Manual alternative:
+
+    mvn clean deploy -P release
+
 ## Open Points
 
-- [ ] Github Actions
-- [ ] Publish to Maven Central
 - [ ] fixtures in beforeXxx()/afterXxx()?
 - [ ] reference fixture by name (not only by type)
 - [ ] @UseFixture
