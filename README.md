@@ -321,7 +321,6 @@ Manual alternative:
 
 ## Open Points
 
-- [ ] fixtures in beforeXxx()/afterXxx()?
 - [ ] reference fixture by name (not only by type)
 - [ ] @UseFixture
 - [ ] support parallel execution
