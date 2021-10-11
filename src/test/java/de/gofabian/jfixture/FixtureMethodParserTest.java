@@ -2,6 +2,7 @@ package de.gofabian.jfixture;
 
 import de.gofabian.jfixture.api.Fixture;
 import de.gofabian.jfixture.api.FixtureContext;
+import de.gofabian.jfixture.api.FixtureId;
 import de.gofabian.jfixture.api.LoadFixtures;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,8 +66,8 @@ public class FixtureMethodParserTest {
                 CreateFixtureDefinitionExample.getMethod("simple")
         );
 
-        assertEquals(String.class, definition.getType());
-        assertEquals(Collections.emptyList(), definition.getDependencyTypes());
+        assertEquals(String.class, definition.getId().getType());
+        assertEquals(Collections.emptyList(), definition.getDependencyIds());
         assertFalse(definition.isAutoUse());
         assertEquals("simple", definition.setUp(Collections.emptyList()));
     }
@@ -87,7 +89,9 @@ public class FixtureMethodParserTest {
                 CreateFixtureDefinitionExample.getMethod("param")
         );
 
-        assertEquals(List.of(String.class), definition.getDependencyTypes());
+        var dependencyTypes = definition.getDependencyIds().stream()
+                .map(FixtureId::getType).collect(Collectors.toList());
+        assertEquals(List.of(String.class), dependencyTypes);
         assertEquals("complex".length(), definition.setUp(List.of("complex")));
     }
 
@@ -142,9 +146,9 @@ public class FixtureMethodParserTest {
         var definitions = parser.parseClass(ParseMethodsExample.class);
 
         assertEquals(2, definitions.size());
-        definitions.sort(Comparator.comparing(d -> d.getType().getSimpleName()));
-        assertEquals(String.class, definitions.get(0).getType());
-        assertEquals(int.class, definitions.get(1).getType());
+        definitions.sort(Comparator.comparing(d -> d.getId().getType().getSimpleName()));
+        assertEquals(String.class, definitions.get(0).getId().getType());
+        assertEquals(int.class, definitions.get(1).getId().getType());
     }
 
     @LoadFixtures(ParseMethodsExample.class)
@@ -160,11 +164,11 @@ public class FixtureMethodParserTest {
         var definitions = parser.parseClass(ParseExternalClassesExample.class);
 
         assertEquals(3, definitions.size());
-        assertEquals(String.class, definitions.get(2).getType());
+        assertEquals(String.class, definitions.get(2).getId().getType());
         definitions.remove(definitions.size() - 1);
-        definitions.sort(Comparator.comparing(d -> d.getType().getSimpleName()));
-        assertEquals(String.class, definitions.get(0).getType());
-        assertEquals(int.class, definitions.get(1).getType());
+        definitions.sort(Comparator.comparing(d -> d.getId().getType().getSimpleName()));
+        assertEquals(String.class, definitions.get(0).getId().getType());
+        assertEquals(int.class, definitions.get(1).getId().getType());
     }
 
     @Test

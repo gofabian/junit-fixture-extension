@@ -1,2 +1,9 @@
-/.idea 
+# Maven build output
 /target
+
+# IntelliJ
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/runConfigurations.xml
+/.idea/uiDesigner.xml
+/.idea/vcs.xml

@@ -1,5 +1,6 @@
 package de.gofabian.jfixture;
 
+import de.gofabian.jfixture.api.FixtureId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ public class FixtureLifecycleTest {
         Object objectTearedDown;
 
         private MyFixtureDefinition() {
-            super(Scope.METHOD, Object.class, new ArrayList<>(), false);
+            super(Scope.METHOD, new FixtureId(Object.class, null), new ArrayList<>(), false);
         }
 
         @Override

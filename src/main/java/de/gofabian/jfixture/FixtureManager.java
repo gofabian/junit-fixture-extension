@@ -1,5 +1,7 @@
 package de.gofabian.jfixture;
 
+import de.gofabian.jfixture.api.FixtureId;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,13 +34,13 @@ public class FixtureManager {
         }
     }
 
-    public boolean supports(Class<?> type) {
-        var definition = definitions.findByType(type);
+    public boolean supports(FixtureId id) {
+        var definition = definitions.findById(id);
         return definition != null;
     }
 
-    public Object resolve(Class<?> type) {
-        var definition = getFixtureDefinition(type);
+    public Object resolve(FixtureId id) {
+        var definition = getFixtureDefinition(id);
         return setUp(definition);
     }
 
@@ -50,7 +52,7 @@ public class FixtureManager {
         }
 
         var dependencies = new ArrayList<>();
-        for (var type : definition.getDependencyTypes()) {
+        for (var type : definition.getDependencyIds()) {
             var dependencyDefinition = getFixtureDefinition(type);
             if (dependencyDefinition.getScope().getOrder() > definition.getScope().getOrder()) {
                 throw new IllegalArgumentException("Fixture has wider scope than dependency: " +
@@ -65,10 +67,10 @@ public class FixtureManager {
         return object;
     }
 
-    private FixtureDefinition getFixtureDefinition(Class<?> type) {
-        var definition = definitions.findByType(type);
+    private FixtureDefinition getFixtureDefinition(FixtureId id) {
+        var definition = definitions.findById(id);
         if (definition == null) {
-            throw new IllegalArgumentException("could not find fixture of type " + type);
+            throw new IllegalArgumentException("could not find fixture by id " + id);
         }
         return definition;
     }

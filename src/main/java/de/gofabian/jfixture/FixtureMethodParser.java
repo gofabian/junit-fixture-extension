@@ -2,6 +2,7 @@ package de.gofabian.jfixture;
 
 import de.gofabian.jfixture.api.Fixture;
 import de.gofabian.jfixture.api.FixtureContext;
+import de.gofabian.jfixture.api.FixtureId;
 import de.gofabian.jfixture.api.LoadFixtures;
 
 import java.lang.reflect.InvocationTargetException;
@@ -62,16 +63,17 @@ public class FixtureMethodParser {
     }
 
     public FixtureDefinition createFixtureDefinition(Object instance, Method method) {
-        var type = method.getReturnType();
-        var parameterTypes = method.getParameterTypes();
-        List<Class<?>> dependencyTypes = Arrays.stream(parameterTypes)
-                .filter(t -> t != FixtureContext.class)
+        var fixtureId = new FixtureId(method.getReturnType(), method.getName());
+        List<FixtureId> dependencyIds = Arrays.stream(method.getParameters())
+                .filter(p -> p.getType() != FixtureContext.class)
+                .map(p -> new FixtureId(p.getType(), p.getName()))
                 .collect(Collectors.toList());
         var annotation = method.getAnnotation(Fixture.class);
         var scope = annotation.scope();
         var autoUse = annotation.autoUse();
+        var parameterTypes = method.getParameterTypes();
 
-        return new FixtureDefinition(scope, type, dependencyTypes, autoUse) {
+        return new FixtureDefinition(scope, fixtureId, dependencyIds, autoUse) {
             private FixtureContext context;
 
             @Override
@@ -80,8 +82,8 @@ public class FixtureMethodParser {
 
                 var dependencyIterator = dependencies.iterator();
                 var args = Arrays.stream(parameterTypes)
-                        .map(type -> {
-                            if (type == FixtureContext.class) {
+                        .map(t -> {
+                            if (t == FixtureContext.class) {
                                 return context;
                             }
                             if (dependencyIterator.hasNext()) {

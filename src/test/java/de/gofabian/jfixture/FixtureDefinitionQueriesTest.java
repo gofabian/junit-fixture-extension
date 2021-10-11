@@ -1,5 +1,6 @@
 package de.gofabian.jfixture;
 
+import de.gofabian.jfixture.api.FixtureId;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class FixtureDefinitionQueriesTest {
         var booleanDefinition = new FixtureDefinitionImpl(boolean.class);
         var queries = new FixtureDefinitionQueries(Arrays.asList(stringDefinition, booleanDefinition));
 
-        var filtered = queries.filterBy(d -> d.getType() == String.class);
+        var filtered = queries.filterBy(d -> d.getId().getType() == String.class);
         assertEquals(Collections.singletonList(stringDefinition), filtered);
     }
 
@@ -27,7 +28,7 @@ public class FixtureDefinitionQueriesTest {
         var booleanDefinition = new FixtureDefinitionImpl(boolean.class);
         var queries = new FixtureDefinitionQueries(Arrays.asList(stringDefinition, booleanDefinition));
 
-        assertSame(booleanDefinition, queries.findByType(boolean.class));
+        assertSame(booleanDefinition, queries.findById(new FixtureId(boolean.class, null)));
     }
 
     @Test
@@ -36,14 +37,14 @@ public class FixtureDefinitionQueriesTest {
         var stringDefinition2 = new FixtureDefinitionImpl(String.class);
         var queries = new FixtureDefinitionQueries(Arrays.asList(stringDefinition1, stringDefinition2));
 
-        assertSame(stringDefinition2, queries.findByType(String.class));
+        assertSame(stringDefinition2, queries.findById(new FixtureId(String.class, null)));
     }
 
     @Test
     public void findByUnknownType() {
         var queries = new FixtureDefinitionQueries(Collections.emptyList());
 
-        assertNull(queries.findByType(int.class));
+        assertNull(queries.findById(new FixtureId(int.class, null)));
     }
 
     @Test
@@ -52,13 +53,13 @@ public class FixtureDefinitionQueriesTest {
         var arrayListDefinition = new FixtureDefinitionImpl(ArrayList.class);
         var queries = new FixtureDefinitionQueries(Arrays.asList(listDefinition, arrayListDefinition));
 
-        assertSame(arrayListDefinition, queries.findByType(List.class));
+        assertSame(arrayListDefinition, queries.findById(new FixtureId(List.class, null)));
     }
 
 
     public static class FixtureDefinitionImpl extends FixtureDefinition {
         protected FixtureDefinitionImpl(Class<?> type) {
-            super(Scope.METHOD, type, Collections.emptyList(), false);
+            super(Scope.METHOD, new FixtureId(type, null), Collections.emptyList(), false);
         }
 
         @Override

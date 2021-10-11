@@ -4,7 +4,7 @@ A Fixture is something you can
 
 - set up and tear down
 - use in a test
-- identify by Java class
+- identify by type and name
 - give a scoped lifecycle (e.g. test method, class, file, session)
 
 More about fixtures: <https://docs.pytest.org/en/6.2.x/fixture.html>
@@ -297,6 +297,35 @@ file-down
 </td></tr>
 </table>
 
+
+
+## Reference Fixture by type and optional name
+
+```java
+@ExtendWith(FixtureExtension.class)
+class TestClass {
+
+    @Fixture
+    String fixture1() {
+        return "fixture1";
+    }
+    
+    @Fixture
+    String fixture2() {
+        return "fixture2";
+    }
+
+    @Test
+    void test(String fixture1, String fixture2, String any) {
+        assertEquals("fixture1", fixture1);
+        assertEquals("fixture2", fixture2);
+        assertTrue(any.equals("fixture1") || any.equals("fixture2"));
+    }
+
+}
+```
+
+
 ## License
 
 [MIT License](LICENSE)
@@ -321,7 +350,7 @@ Manual alternative:
 
 ## Open Points
 
-- [ ] reference fixture by name (not only by type)
+- [ ] generic dependency types, e.g. List<Xyz>
 - [ ] @UseFixture
 - [ ] support parallel execution
 - [ ] support static fixture class methods

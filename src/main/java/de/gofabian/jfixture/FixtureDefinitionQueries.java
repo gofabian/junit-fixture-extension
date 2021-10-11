@@ -1,5 +1,7 @@
 package de.gofabian.jfixture;
 
+import de.gofabian.jfixture.api.FixtureId;
+
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -16,19 +18,27 @@ public class FixtureDefinitionQueries {
         return definitions.stream().filter(predicate).collect(Collectors.toList());
     }
 
-    public FixtureDefinition findByType(Class<?> type) {
+    public FixtureDefinition findById(FixtureId id) {
+        FixtureDefinition candidateWithOtherName = null;
         var it = definitions.listIterator(definitions.size());
         while (it.hasPrevious()) {
             var definition = it.previous();
-            if (supportsType(definition, type)) {
-                return definition;
+            if (supportsType(definition, id.getType())) {
+                var expectedName = definition.getId().getName();
+                var givenName = id.getName();
+                if (expectedName != null && expectedName.equals(givenName)) {
+                    return definition;
+                }
+                if (candidateWithOtherName == null) {
+                    candidateWithOtherName = definition;
+                }
             }
         }
-        return null;
+        return candidateWithOtherName;
     }
 
     private static boolean supportsType(FixtureDefinition definition, Class<?> type) {
-        return type.isAssignableFrom(definition.getType());
+        return type.isAssignableFrom(definition.getId().getType());
     }
 
 }

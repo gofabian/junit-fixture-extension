@@ -1,5 +1,6 @@
 package de.gofabian.jfixture;
 
+import de.gofabian.jfixture.api.FixtureId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestTemplate;
@@ -67,8 +68,8 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
         if (method.isAnnotationPresent(Test.class) || method.isAnnotationPresent(TestFactory.class) ||
                 method.isAnnotationPresent(TestTemplate.class)) {
             var manager = getManager(extensionContext);
-            var type = parameterContext.getParameter().getType();
-            return manager.supports(type);
+            var fixtureId = createFixtureId(parameterContext);
+            return manager.supports(fixtureId);
         }
         return false;
     }
@@ -76,8 +77,13 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         var manager = getManager(extensionContext);
-        var type = parameterContext.getParameter().getType();
-        return manager.resolve(type);
+        var fixtureId = createFixtureId(parameterContext);
+        return manager.resolve(fixtureId);
+    }
+
+    private FixtureId createFixtureId(ParameterContext parameterContext) {
+        var param = parameterContext.getParameter();
+        return new FixtureId(param.getType(), param.getName());
     }
 
 
