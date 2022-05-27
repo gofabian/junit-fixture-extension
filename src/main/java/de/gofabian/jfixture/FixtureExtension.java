@@ -1,6 +1,7 @@
 package de.gofabian.jfixture;
 
 import de.gofabian.jfixture.api.FixtureId;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.TestTemplate;
@@ -65,8 +66,7 @@ public class FixtureExtension implements TestInstancePostProcessor, ParameterRes
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         var method = parameterContext.getDeclaringExecutable();
-        if (method.isAnnotationPresent(Test.class) || method.isAnnotationPresent(TestFactory.class) ||
-                method.isAnnotationPresent(TestTemplate.class)) {
+        if (method.isAnnotationPresent(Test.class) || method.isAnnotationPresent(TestFactory.class) || method.isAnnotationPresent(TestTemplate.class) || method.isAnnotationPresent(RepeatedTest.class)) {
             var manager = getManager(extensionContext);
             var fixtureId = createFixtureId(parameterContext);
             return manager.supports(fixtureId);
